@@ -117,13 +117,13 @@ public class MainActivity extends AppCompatActivity {
                                             new AuthUI.IdpConfig.EmailBuilder().build(),
                                             new AuthUI.IdpConfig.GoogleBuilder().build())
                                     )
-                                    .setLogo(R.drawable.sgsits)
+                                    .setLogo(R.drawable.foodlogo)
                                     .build(), RC_SIGN_IN);
                 }
             }
         };
 
-        editButton = findViewById(R.id.edit_details);
+        editButton = findViewById(R.id.find_recipies);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,76 +133,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pollButton = findViewById(R.id.poll_form);
-        pollButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent pollIntent = new Intent(MainActivity.this, PollListActivity.class);
-                startActivity(pollIntent);
 
-            }
-        });
-
-        uploadResumeButton = findViewById(R.id.upload_resume);
-        uploadResumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("application/pdf");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_RESUME_PICKER);
-            }
-        });
-
-
-        downloadResumeButton = findViewById(R.id.download_resume);
-        downloadResumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try{resumelisten();
-                if(resume_link_url!=null){
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(resume_link_url));
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
-                }
-                }else{
-                    Toast.makeText(MainActivity.this, "Please Upload Resume First!", Toast.LENGTH_LONG).show();
-                }
-                }catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Firebase Server Error!", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
     }
-
-    private void parseJson(JSONArray response) {
-        try {
-            if(userList == null){
-                userList = new ArrayList<>();
-            }
-            else{
-                userList.clear();
-            }
-            JSONArray jsonarray = new JSONArray(response.toString());
-            for (int i = 0; i < jsonarray.length(); i++) {
-                JSONObject jsonobject = jsonarray.getJSONObject(i);
-                User user = new User();
-                Gson gson = new Gson();
-                user = gson.fromJson(jsonobject.toString(),User.class);
-                Log.e("user" ,user.toString());
-                userList.add(user);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.e("size",""+userList.size());
-        for(User user : userList){
-            Log.e("Converted : ",user.toString());
-        }
-    }
-
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -224,6 +156,8 @@ public class MainActivity extends AppCompatActivity {
             final StorageReference resRef = resumeStorage.child(user_email_id.replace('.',',')).child("Resume");
 
             // Upload file to Firebase Storage
+            //TODO Not in Use
+            /**
             resRef.putFile(selectedResumeUri)
                     .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -235,8 +169,7 @@ public class MainActivity extends AppCompatActivity {
                             dbref.child("StudentData").child(eml.replace('.',',')).child("resume").setValue(res);
                         }
                     });
-
-
+            **/
         }
 
 
@@ -322,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    //TODO not in use
     @Override
     protected void onResume() {
 
@@ -366,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
         //detachDatabaseReadListener();
 
     }
-
+/**
     private void resumelisten(){
         String eml = user_email_id;
         dbref.child("StudentData").child(eml.replace('.',',')).child("resume").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -443,4 +376,5 @@ public class MainActivity extends AppCompatActivity {
         return response.length()>1? response.substring(0, response.length()-2): response;
     }
 
+ **/
 }

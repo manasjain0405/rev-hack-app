@@ -19,8 +19,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditDetailsActivity" />
-        <activity android:name=".PollListActivity" />
-        <activity android:name=".PollWebView"></activity>
     </application>
 
 </manifest>
