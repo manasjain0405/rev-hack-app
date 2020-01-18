@@ -1,4 +1,4 @@
-package com.revhack.spoonacular.dtos;
+package com.example.manas.tnp.tpo.dtos;
 
 public class LengthDto {
 

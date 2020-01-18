@@ -1,6 +1,6 @@
-package com.revhack.spoonacular.dtos;
+package com.example.manas.tnp.tpo.dtos;
 
-public class EquipmentsDto {
+public class IngredientsDto {
 
     private int id;
 
