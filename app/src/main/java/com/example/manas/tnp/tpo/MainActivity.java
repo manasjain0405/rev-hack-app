@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,7 +19,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,8 +27,30 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.example.manas.tnp.tpo.dtos.EquipmentsDto;
+import com.example.manas.tnp.tpo.dtos.FinalResponse;
+import com.example.manas.tnp.tpo.dtos.IngredientsDto;
+import com.example.manas.tnp.tpo.dtos.Instruction;
+import com.example.manas.tnp.tpo.dtos.RecipeSearchResponseDto;
+import com.example.manas.tnp.tpo.dtos.SearchResponse;
+import com.example.manas.tnp.tpo.dtos.StepsDto;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,10 +80,17 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseStorage mFirebaseStorage;
     private StorageReference resumeStorage;
     private static String resume_link_url;
+    private List<User> userList;
+    public SearchResponse searchResponse;
+    public RecipeSearchResponseDto recipeSearchResponseDto;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //spoonacular
+        callService();
+
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -145,6 +174,88 @@ public class MainActivity extends AppCompatActivity {
                     });
             **/
         }
+
+
+
+    }
+
+    public void callService(){
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/search").newBuilder();
+        urlBuilder.addQueryParameter("apiKey", "8917e952b5074395856aea4402376c8a");
+        urlBuilder.addQueryParameter("query", "bhindi");
+        urlBuilder.addQueryParameter("number","1");
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("Error : ", "error while making call to api 1");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                  //  Log.e("Response 1",response.body().string());
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        Gson gson = new Gson();
+                         searchResponse = gson.fromJson(jsonObject.toString(),SearchResponse.class);
+                         callReceipeService(searchResponse.getResults().get(0).getId());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    public void callReceipeService(int id){
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/"+String.valueOf(id)+"/analyzedInstructions").newBuilder();
+        urlBuilder.addQueryParameter("apiKey", "8917e952b5074395856aea4402376c8a");
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("Error : ", "error while making call to api 2");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    //Log.e("Response 2",response.body().string());
+                    try {
+                        JSONArray jsonarray = new JSONArray(response.body().string());
+                        for (int i = 0; i < jsonarray.length(); i++) {
+                            JSONObject jsonobject = jsonarray.getJSONObject(i);
+                            Gson gson = new Gson();
+                            recipeSearchResponseDto = gson.fromJson(jsonobject.toString(), RecipeSearchResponseDto.class);
+                            FinalResponse finalResponse = getFinalResponse(recipeSearchResponseDto);
+                            Log.e("Test: ", finalResponse.getInstructions().get(0).getIngredients());
+                        }
+                    } catch (JSONException e) {
+                        Log.e("Error  ", e.getMessage());
+                    }
+
+                }
+            }
+        });
     }
 
     //TODO not in use
@@ -207,5 +318,66 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //https://api.spoonacular.com/recipes/{id}/analyzedInstructions
+
+    private FinalResponse getFinalResponse(RecipeSearchResponseDto recipeSearchResponseDto) {
+
+        Log.e("First :", recipeSearchResponseDto.toString());
+        FinalResponse finalResponse = new FinalResponse();
+        finalResponse.setReadyInMinutes(searchResponse.getResults().get(0).getReadyInMinutes());
+        Log.e("Second :", String.valueOf(finalResponse.getReadyInMinutes()));
+        finalResponse.setSteps(getSteps(recipeSearchResponseDto));
+        finalResponse.setInstructions(getInstructions(recipeSearchResponseDto));
+        finalResponse.setIngredients(getFinalIngredients(finalResponse.getInstructions()));
+        Log.e("thrid: ", finalResponse.getIngredients());
+        return finalResponse;
+    }
+
+
+    private List<String> getSteps(RecipeSearchResponseDto recipeSearchResponseDto) {
+        List<String> steps = new ArrayList<>();
+        for (StepsDto step: recipeSearchResponseDto.getSteps()) {
+            steps.add(step.getStep());
+        }
+        return steps;
+    }
+
+    private List<Instruction> getInstructions(RecipeSearchResponseDto recipeSearchResponseDto) {
+        List<Instruction> instructionList = new ArrayList<>();
+        for (StepsDto step: recipeSearchResponseDto.getSteps()) {
+            Instruction instruction = new Instruction();
+            instruction.setStep(step.getStep());
+            instruction.setLength(step.getLength().getNumber()  + " " + step.getLength().getUnit());
+            instruction.setIngredients(getIngredients(step.getIngredients()));
+            instruction.setEquipments(getEquipments(step.getEquipment()));
+            instructionList.add(instruction);
+        }
+        return instructionList;
+    }
+
+    private String getIngredients(List<IngredientsDto> ingredients) {
+        String response = "";
+        for (IngredientsDto i: ingredients) {
+            response = response.concat(i.getName()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
+
+    private String getEquipments(List<EquipmentsDto> equipments) {
+        String response = "";
+        for(EquipmentsDto e: equipments) {
+            response = response.concat(e.getName()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
+
+    private String getFinalIngredients(List<Instruction> instructions) {
+        String response = "";
+        for(Instruction e: instructions) {
+            response = response.concat(e.getIngredients()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
+
  **/
 }

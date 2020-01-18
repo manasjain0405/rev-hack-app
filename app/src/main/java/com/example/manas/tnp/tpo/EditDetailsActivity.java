@@ -62,9 +62,9 @@ public class EditDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_details);
 
         Intent mainActivity = getIntent();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mMessagesDatabaseReference = mFirebaseDatabase.getReference();
-        recipeName = findViewById(R.id.edit_description);
+        //mFirebaseDatabase = FirebaseDatabase.getInstance();
+        //mMessagesDatabaseReference = mFirebaseDatabase.getReference();
+        //recipeName = findViewById(R.id.edit_description);
         submit = findViewById(R.id.submit);
 
         submit.setOnClickListener(new View.OnClickListener() {
