@@ -98,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // Intent editIntent = new Intent(MainActivity.this, EditDetailsActivity.class);
-                //editIntent.putExtra("user_email",user_email_id);
-                //startActivity(editIntent);
+                Intent editIntent = new Intent(MainActivity.this, EditDetailsActivity.class);
+                editIntent.putExtra("user_email",user_email_id);
+                startActivity(editIntent);
             }
         });
 
