@@ -87,7 +87,7 @@
                 android:layout_gravity="center"
                 android:textSize="20sp" />
 
-            <TextView
+            <ListView
                 android:id="@+id/Steps"
                 android:layout_width="100dp"
                 android:layout_height="30dp"
