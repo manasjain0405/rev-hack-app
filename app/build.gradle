@@ -35,6 +35,13 @@ dependencies {
     //Firebase UI for Signin Screen
     implementation 'com.firebaseui:firebase-ui-auth:4.2.0'
     // Displaying images
+
+    //api calling
+    compile 'com.android.volley:volley:1.1.0'
+    compile 'com.google.code.gson:gson:2.4'
+
+   // compile 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.6'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

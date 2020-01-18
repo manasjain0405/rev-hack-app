@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,6 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -26,8 +34,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +78,77 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //get method for receipe
+        // this method provides equiments
+        //String URL = "https://api.spoonacular.com/recipes/"+"324694"+"/analyzedInstructions?apiKey=8917e952b5074395856aea4402376c8a";
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//
+//
+//        JsonArrayRequest objectRequest = new JsonArrayRequest(
+//                Request.Method.GET,
+//                URL,
+//                null,
+//                new Response.Listener<JSONArray>() {
+//                    @Override
+//                    public void onResponse(JSONArray response) {
+//                        Log.e("Receipe details",response.toString());
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        Log.e("Error", error.toString());
+//                    }
+//                }
+//        );
+//        requestQueue.add(objectRequest);
+
+        //http://localhost:4041/data
+
+        String URL = "http://192.168.43.14:4041/data";
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+
+        final List<User> userList = new ArrayList<>();
+        JsonArrayRequest objectRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                URL,
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.e("Data",response.toString());
+                        try {
+                            //ObjectMapper mapper = new ObjectMapper();
+                            JSONArray jsonarray = new JSONArray(response.toString());
+                            for (int i = 0; i < jsonarray.length(); i++) {
+                                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                                User user = new User();
+                                Gson gson = new Gson();
+                                user = gson.fromJson(jsonobject.toString(),User.class);
+                                Log.e("user" ,user.toString());
+                                userList.add(user);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Error", error.toString());
+                    }
+                }
+        );
+        requestQueue.add(objectRequest);
+        Log.e("size",""+userList.size());
+        for(User user : userList){
+            Log.e("Converted : ",user.toString());
+        }
+
 
         mUsername = ANONYMOUS;
 
@@ -243,4 +331,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //https://api.spoonacular.com/recipes/{id}/analyzedInstructions
+
+
+
 }
