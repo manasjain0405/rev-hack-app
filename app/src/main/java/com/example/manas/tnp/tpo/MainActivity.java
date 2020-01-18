@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //spoonacular
-        callService();
+        //callService();
 
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -179,12 +179,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void callService(){
+    public void callService(String query){
         OkHttpClient client = new OkHttpClient();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/search").newBuilder();
         urlBuilder.addQueryParameter("apiKey", "8917e952b5074395856aea4402376c8a");
-        urlBuilder.addQueryParameter("query", "bhindi");
+        urlBuilder.addQueryParameter("query", query);
         urlBuilder.addQueryParameter("number","1");
         String url = urlBuilder.build().toString();
 
@@ -302,22 +302,22 @@ public class MainActivity extends AppCompatActivity {
         //detachDatabaseReadListener();
 
     }
-/**
-    private void resumelisten(){
-        String eml = user_email_id;
-        dbref.child("StudentData").child(eml.replace('.',',')).child("resume").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                resume_link resl = dataSnapshot.getValue(resume_link.class);
-                resume_link_url = resl.getLink();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
+//
+//    private void resumelisten(){
+//        String eml = user_email_id;
+//        dbref.child("StudentData").child(eml.replace('.',',')).child("resume").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                resume_link resl = dataSnapshot.getValue(resume_link.class);
+//                resume_link_url = resl.getLink();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
     //https://api.spoonacular.com/recipes/{id}/analyzedInstructions
 
     private FinalResponse getFinalResponse(RecipeSearchResponseDto recipeSearchResponseDto) {
@@ -379,5 +379,4 @@ public class MainActivity extends AppCompatActivity {
         return response.length()>1? response.substring(0, response.length()-2): response;
     }
 
- **/
 }

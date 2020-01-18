@@ -62,114 +62,38 @@ public class EditDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_details);
 
         Intent mainActivity = getIntent();
-        //mFirebaseDatabase = FirebaseDatabase.getInstance();
-        //mMessagesDatabaseReference = mFirebaseDatabase.getReference();
-        //recipeName = findViewById(R.id.edit_description);
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mMessagesDatabaseReference = mFirebaseDatabase.getReference();
+        recipeName = findViewById(R.id.edit_description);
         submit = findViewById(R.id.submit);
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String json = "{\"data\":[\"Hello World\"],\"tgt\":\"hi\",\"src\":\"en\"}";
 
                 ArrayList<String> x=new ArrayList<String>();
                 x.add("Hello");
                 x.add("Bye");
                 new RevHackApiUtils().getTranslatedList(x);
                 System.out.println("llo");
-
-
-//                client.newCall(request).enqueue(new Callback() {
-//                    @Override
-//                    public void onFailure(Call call, IOException e) {
-//                        call.cancel();
-//                    }
-//
-//                    @Override
-//                    public void onResponse(Call call, final Response response) throws IOException {
-//
-//                        final String myResponse = response.body().string();
-//
-//                        EditDetailsActivity.this.runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//
-//                                Toast.makeText(EditDetailsActivity.this, response.body().toString(), Toast.LENGTH_SHORT).show();
-//
-//
-//                            }
-//                        });
-//                        return lst;
-//                    }
-
-//                JSONObject j= new JSONObject();
-//                try {
-//                    j = new JSONObject(json);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                //JSONObject js = new
-//                RecipeDetails student_det = new RecipeDetails(recipeName.getText().toString());
-//                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://hackapi.reverieinc.com/nmt").newBuilder();
-//                String url = urlBuilder.build().toString();
-//                final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-//                //final JSONObject j = new JSONObject();
-//                Request request = new Request.Builder()
-//                        .url(url)
-//                        .post(RequestBody.create(j.toString(), JSON))
-//                        .build();
-//
-//                OkHttpClient client = new OkHttpClient().newBuilder()
-//                        .addInterceptor(new ApiInterceptor())
-//                        .build();
-//
-//                client.newCall(request).enqueue(new Callback() {
-//                    @Override
-//                    public void onFailure(Call call, IOException e) {
-//                        call.cancel();
-//                    }
-//
-//                    @Override
-//                    public void onResponse(Call call, final Response response) throws IOException {
-//
-//                        final String myResponse = response.body().string();
-//
-//                        EditDetailsActivity.this.runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//
-//                                    Toast.makeText(EditDetailsActivity.this, response.body().toString(), Toast.LENGTH_SHORT).show();
-//
-//
-//                            }
-//                        });
-//
-//                    }
-//                });
-                //try {
-//                    Response response = client.newCall(request).execute();
-//                    Toast.makeText(EditDetailsActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-//                } catch (IOException e) {
-//                    Toast.makeText(EditDetailsActivity.this, "Error Occured", Toast.LENGTH_SHORT).show();
-//                }
                 //Requeststudent_det.getName();
 
 //                Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
 //                startActivity(intent);
-                steps=(ListView)findViewById(R.id.Steps);
-                RecipeDetails student_det = new RecipeDetails(recipeName.getText().toString());
+             //   steps=(ListView)findViewById(R.id.Steps);
+              //  RecipeDetails student_det = new RecipeDetails(recipeName.getText().toString());
                 Toast.makeText(EditDetailsActivity.this, "Searching recipie", Toast.LENGTH_SHORT).show();
 
-                //Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
-        String ingre="Ingredients are :";
-        ingredients=(TextView)findViewById(R.id.ingredients);
-        ingredients.setText(ingre);
-        List<String> your_array_list = new ArrayList<String>();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,your_array_list);
-        steps.setAdapter(arrayAdapter);
+//        String ingre="Ingredients are :";
+//        ingredients=findViewById(R.id.ingredients);
+//        ingredients.setText(ingre);
+//        List<String> your_array_list = new ArrayList<String>();
+//        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,your_array_list);
+//        steps.setAdapter(arrayAdapter);
     }
 }
 

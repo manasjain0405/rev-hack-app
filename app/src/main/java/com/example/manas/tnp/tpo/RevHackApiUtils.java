@@ -70,7 +70,7 @@ public class RevHackApiUtils {
                 JSONObject dt = jobj.getJSONObject("data");
                 JSONArray jarr = dt.getJSONArray("result");
                 for (int i = 0; i < jarr.length(); i++) {
-                    lst.add(i, jarr.getJSONArray(i).getJSONArray(0).toString());
+                    lst.add(i, jarr.getJSONArray(i).get(0).toString());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -82,6 +82,7 @@ public class RevHackApiUtils {
 
         @Override
         protected void onPostExecute(List<String>list){
+            System.out.println(list);
            super.onPostExecute(list);
         }
 
