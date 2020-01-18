@@ -40,7 +40,7 @@ dependencies {
     // Displaying images
 
 
-    compile 'com.google.code.gson:gson:2.4'
+    implementation('com.google.code.gson:gson:2.4')
     implementation("com.squareup.okhttp3:okhttp:4.3.1") //For API calls
 
 
