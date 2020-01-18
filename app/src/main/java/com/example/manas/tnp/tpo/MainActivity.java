@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                             new AuthUI.IdpConfig.EmailBuilder().build(),
                                             new AuthUI.IdpConfig.GoogleBuilder().build())
                                     )
-                                    .setLogo(R.drawable.sgsits)
+                                    .setLogo(R.drawable.foodlogo)
                                     .build(), RC_SIGN_IN);
                 }
             }
