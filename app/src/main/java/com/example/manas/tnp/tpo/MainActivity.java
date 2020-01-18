@@ -43,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
     //private EditText mMessageEditText;
 
     private Button editButton;
-    private Button pollButton;
-    private Button uploadResumeButton;
-    private Button downloadResumeButton;
 
     private String mUsername;
     private static String user_email_id;
@@ -104,49 +101,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pollButton = findViewById(R.id.poll_form);
-        pollButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent pollIntent = new Intent(MainActivity.this, PollListActivity.class);
-                startActivity(pollIntent);
 
-            }
-        });
-
-        uploadResumeButton = findViewById(R.id.upload_resume);
-        uploadResumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("application/pdf");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_RESUME_PICKER);
-            }
-        });
-
-
-        downloadResumeButton = findViewById(R.id.download_resume);
-        downloadResumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try{resumelisten();
-                if(resume_link_url!=null){
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(resume_link_url));
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
-                }
-                }else{
-                    Toast.makeText(MainActivity.this, "Please Upload Resume First!", Toast.LENGTH_LONG).show();
-                }
-                }catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Firebase Server Error!", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
     }
-
+    //TODO not in use
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -167,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
             final StorageReference resRef = resumeStorage.child(user_email_id.replace('.',',')).child("Resume");
 
             // Upload file to Firebase Storage
+            //TODO not in use
+            /**
             resRef.putFile(selectedResumeUri)
                     .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -178,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                             dbref.child("StudentData").child(eml.replace('.',',')).child("resume").setValue(res);
                         }
                     });
-
+            **/
 
         }
     }
@@ -227,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         //detachDatabaseReadListener();
 
     }
-
+/**
     private void resumelisten(){
         String eml = user_email_id;
         dbref.child("StudentData").child(eml.replace('.',',')).child("resume").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -243,4 +202,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+ **/
 }

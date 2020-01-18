@@ -50,8 +50,9 @@ public class EditDetailsActivity extends AppCompatActivity {
 
                 RecipeDetails student_det = new RecipeDetails(recipeName.getText().toString());
                 Toast.makeText(EditDetailsActivity.this, "Searching recipie", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
-                startActivity(intent);
+
+                //Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
+                //startActivity(intent);
             }
         });
     }
