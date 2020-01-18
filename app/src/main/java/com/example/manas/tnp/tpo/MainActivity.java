@@ -35,6 +35,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.revhack.spoonacular.httpService.SpoonacularHttpResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,11 +75,17 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseStorage mFirebaseStorage;
     private StorageReference resumeStorage;
     private static String resume_link_url;
+    private List<User> userList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+       // SpoonacularHttpResponse spoonacularHttpResponse = new SpoonacularHttpResponse();
+        //spoonacularHttpResponse.getRecipeSearchResponse(requestQueue,324694);
         //get method for receipe
         // this method provides equiments
         //String URL = "https://api.spoonacular.com/recipes/"+"324694"+"/analyzedInstructions?apiKey=8917e952b5074395856aea4402376c8a";
@@ -107,10 +114,10 @@ public class MainActivity extends AppCompatActivity {
         //http://localhost:4041/data
 
         String URL = "http://192.168.43.14:4041/data";
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        //RequestQueue requestQueue = Volley.newRequestQueue(this);
 
 
-        final List<User> userList = new ArrayList<>();
+
         JsonArrayRequest objectRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 URL,
@@ -119,21 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.e("Data",response.toString());
-                        try {
-                            //ObjectMapper mapper = new ObjectMapper();
-                            JSONArray jsonarray = new JSONArray(response.toString());
-                            for (int i = 0; i < jsonarray.length(); i++) {
-                                JSONObject jsonobject = jsonarray.getJSONObject(i);
-                                User user = new User();
-                                Gson gson = new Gson();
-                                user = gson.fromJson(jsonobject.toString(),User.class);
-                                Log.e("user" ,user.toString());
-                                userList.add(user);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
+                        parseJson(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -143,11 +136,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+
         requestQueue.add(objectRequest);
-        Log.e("size",""+userList.size());
-        for(User user : userList){
-            Log.e("Converted : ",user.toString());
-        }
+
 
 
         mUsername = ANONYMOUS;
@@ -234,6 +226,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void parseJson(JSONArray response) {
+        try {
+            if(userList == null){
+                userList = new ArrayList<>();
+            }
+            else{
+                userList.clear();
+            }
+            JSONArray jsonarray = new JSONArray(response.toString());
+            for (int i = 0; i < jsonarray.length(); i++) {
+                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                User user = new User();
+                Gson gson = new Gson();
+                user = gson.fromJson(jsonobject.toString(),User.class);
+                Log.e("user" ,user.toString());
+                userList.add(user);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.e("size",""+userList.size());
+        for(User user : userList){
+            Log.e("Converted : ",user.toString());
+        }
+    }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
