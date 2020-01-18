@@ -13,13 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -35,6 +28,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.revhack.spoonacular.dtos.EquipmentsDto;
+import com.revhack.spoonacular.dtos.FinalResponse;
+import com.revhack.spoonacular.dtos.IngredientsDto;
+import com.revhack.spoonacular.dtos.Instruction;
+import com.revhack.spoonacular.dtos.RecipeSearchResponseDto;
+import com.revhack.spoonacular.dtos.ResultsDto;
+import com.revhack.spoonacular.dtos.SearchResponse;
+import com.revhack.spoonacular.dtos.StepsDto;
 import com.revhack.spoonacular.httpService.SpoonacularHttpResponse;
 
 import org.json.JSONArray;
@@ -46,6 +47,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,70 +84,15 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference resumeStorage;
     private static String resume_link_url;
     private List<User> userList;
+    public SearchResponse searchResponse;
+    public RecipeSearchResponseDto recipeSearchResponseDto;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-       // SpoonacularHttpResponse spoonacularHttpResponse = new SpoonacularHttpResponse();
-        //spoonacularHttpResponse.getRecipeSearchResponse(requestQueue,324694);
-        //get method for receipe
-        // this method provides equiments
-        //String URL = "https://api.spoonacular.com/recipes/"+"324694"+"/analyzedInstructions?apiKey=8917e952b5074395856aea4402376c8a";
-//        RequestQueue requestQueue = Volley.newRequestQueue(this);
-//
-//
-//        JsonArrayRequest objectRequest = new JsonArrayRequest(
-//                Request.Method.GET,
-//                URL,
-//                null,
-//                new Response.Listener<JSONArray>() {
-//                    @Override
-//                    public void onResponse(JSONArray response) {
-//                        Log.e("Receipe details",response.toString());
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Log.e("Error", error.toString());
-//                    }
-//                }
-//        );
-//        requestQueue.add(objectRequest);
-
-        //http://localhost:4041/data
-
-        String URL = "http://192.168.43.14:4041/data";
-        //RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-
-
-        JsonArrayRequest objectRequest = new JsonArrayRequest(
-                Request.Method.GET,
-                URL,
-                null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.e("Data",response.toString());
-                        parseJson(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Error", error.toString());
-                    }
-                }
-        );
-
-
-        requestQueue.add(objectRequest);
-
+        //spoonacular
+        callService();
 
 
         mUsername = ANONYMOUS;
@@ -289,6 +242,88 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+
+
+    }
+
+    public void callService(){
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/search").newBuilder();
+        urlBuilder.addQueryParameter("apiKey", "8917e952b5074395856aea4402376c8a");
+        urlBuilder.addQueryParameter("query", "bhindi");
+        urlBuilder.addQueryParameter("number","1");
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("Error : ", "error while making call to api 1");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                  //  Log.e("Response 1",response.body().string());
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        Gson gson = new Gson();
+                         searchResponse = gson.fromJson(jsonObject.toString(),SearchResponse.class);
+                         callReceipeService(searchResponse.getResults().get(0).getId());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    public void callReceipeService(int id){
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/"+String.valueOf(id)+"/analyzedInstructions").newBuilder();
+        urlBuilder.addQueryParameter("apiKey", "8917e952b5074395856aea4402376c8a");
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("Error : ", "error while making call to api 2");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    //Log.e("Response 2",response.body().string());
+                    try {
+                        JSONArray jsonarray = new JSONArray(response.body().string());
+                        for (int i = 0; i < jsonarray.length(); i++) {
+                            JSONObject jsonobject = jsonarray.getJSONObject(i);
+                            Gson gson = new Gson();
+                            recipeSearchResponseDto = gson.fromJson(jsonobject.toString(), RecipeSearchResponseDto.class);
+                            FinalResponse finalResponse = getFinalResponse(recipeSearchResponseDto);
+                            Log.e("Test: ", finalResponse.getInstructions().get(0).getIngredients());
+                        }
+                    } catch (JSONException e) {
+                        Log.e("Error  ", e.getMessage());
+                    }
+
+                }
+            }
+        });
     }
 
 
@@ -353,6 +388,63 @@ public class MainActivity extends AppCompatActivity {
     }
     //https://api.spoonacular.com/recipes/{id}/analyzedInstructions
 
+    private FinalResponse getFinalResponse(RecipeSearchResponseDto recipeSearchResponseDto) {
 
+        Log.e("First :", recipeSearchResponseDto.toString());
+        FinalResponse finalResponse = new FinalResponse();
+        finalResponse.setReadyInMinutes(searchResponse.getResults().get(0).getReadyInMinutes());
+        Log.e("Second :", String.valueOf(finalResponse.getReadyInMinutes()));
+        finalResponse.setSteps(getSteps(recipeSearchResponseDto));
+        finalResponse.setInstructions(getInstructions(recipeSearchResponseDto));
+        finalResponse.setIngredients(getFinalIngredients(finalResponse.getInstructions()));
+        Log.e("thrid: ", finalResponse.getIngredients());
+        return finalResponse;
+    }
+
+
+    private List<String> getSteps(RecipeSearchResponseDto recipeSearchResponseDto) {
+        List<String> steps = new ArrayList<>();
+        for (StepsDto step: recipeSearchResponseDto.getSteps()) {
+            steps.add(step.getStep());
+        }
+        return steps;
+    }
+
+    private List<Instruction> getInstructions(RecipeSearchResponseDto recipeSearchResponseDto) {
+        List<Instruction> instructionList = new ArrayList<>();
+        for (StepsDto step: recipeSearchResponseDto.getSteps()) {
+            Instruction instruction = new Instruction();
+            instruction.setStep(step.getStep());
+            instruction.setLength(step.getLength().getNumber()  + " " + step.getLength().getUnit());
+            instruction.setIngredients(getIngredients(step.getIngredients()));
+            instruction.setEquipments(getEquipments(step.getEquipment()));
+            instructionList.add(instruction);
+        }
+        return instructionList;
+    }
+
+    private String getIngredients(List<IngredientsDto> ingredients) {
+        String response = "";
+        for (IngredientsDto i: ingredients) {
+            response = response.concat(i.getName()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
+
+    private String getEquipments(List<EquipmentsDto> equipments) {
+        String response = "";
+        for(EquipmentsDto e: equipments) {
+            response = response.concat(e.getName()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
+
+    private String getFinalIngredients(List<Instruction> instructions) {
+        String response = "";
+        for(Instruction e: instructions) {
+            response = response.concat(e.getIngredients()+ ", ");
+        }
+        return response.length()>1? response.substring(0, response.length()-2): response;
+    }
 
 }

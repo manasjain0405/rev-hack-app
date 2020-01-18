@@ -8,7 +8,11 @@ public class FinalResponse {
 
     private int readyInMinutes;
 
+    private List<String> steps;
+
     private List<Instruction> instructions;
+
+    private String ingredients;
 
     public String getName() {
         return name;
@@ -32,5 +36,21 @@ public class FinalResponse {
 
     public void setInstructions(List<Instruction> instructions) {
         this.instructions = instructions;
+    }
+
+    public List<String> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(List<String> steps) {
+        this.steps = steps;
+    }
+
+    public String getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
     }
 }

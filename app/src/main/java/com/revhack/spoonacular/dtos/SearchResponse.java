@@ -73,6 +73,20 @@ public class SearchResponse {
         return expires;
     }
 
+    @Override
+    public String toString() {
+        return "SearchResponse{" +
+                "results=" + results +
+                ", baseUri='" + baseUri + '\'' +
+                ", offset=" + offset +
+                ", number=" + number +
+                ", totalResults=" + totalResults +
+                ", processingTimeMs=" + processingTimeMs +
+                ", expires=" + expires +
+                ", isStale=" + isStale +
+                '}';
+    }
+
     public void setExpires(Long expires) {
         this.expires = expires;
     }
